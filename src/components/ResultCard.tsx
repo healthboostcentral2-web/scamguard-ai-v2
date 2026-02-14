@@ -1,6 +1,9 @@
 import React from 'react';
 import { ScanResult } from '../types';
 import { ShieldCheck, ShieldAlert, AlertTriangle, CheckCircle } from 'lucide-react';
+import RiskMeter from './RiskMeter';
+import RiskExplanation from './RiskExplanation';
+import ActionButtons from './ActionButtons';
 
 interface ResultCardProps {
   result: ScanResult;
@@ -69,6 +72,12 @@ const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
              <p className="text-slate-200">{result.advice}</p>
           </div>
 
+          {/* Risk Meter */}
+          <RiskMeter percentage={result.confidence} />
+
+          {/* Why this is risky - grouped explanation */}
+          <RiskExplanation reasons={result.reasons} riskLevel={result.riskLevel} />
+
           {/* Reasons */}
           {result.reasons.length > 0 && (
             <div>
@@ -83,6 +92,9 @@ const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
               </ul>
             </div>
           )}
+
+          {/* Action Buttons */}
+          <ActionButtons result={result} />
         </div>
       </div>
     </div>
