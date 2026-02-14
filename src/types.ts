@@ -1,7 +1,7 @@
 export type RiskLevel = 'SAFE' | 'SUSPICIOUS' | 'SCAM';
 
 export interface RuleMatch {
-  category: 'keyword' | 'domain' | 'phone' | 'urgency';
+  category: 'keyword' | 'domain' | 'phone' | 'urgency' | 'community';
   label: string;
 }
 

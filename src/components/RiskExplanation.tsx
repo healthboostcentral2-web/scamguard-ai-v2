@@ -1,12 +1,12 @@
 import React from 'react';
-import { AlertCircle, Link, Phone, Zap, FileWarning } from 'lucide-react';
+import { AlertCircle, Link, Phone, Zap, FileWarning, Users } from 'lucide-react';
 
 interface RiskExplanationProps {
   reasons: string[];
   riskLevel: string;
 }
 
-type CategoryKey = 'keywords' | 'links' | 'urgency' | 'phone' | 'other';
+type CategoryKey = 'keywords' | 'links' | 'urgency' | 'phone' | 'community' | 'other';
 
 interface Category {
   label: string;
@@ -19,6 +19,7 @@ const CATEGORIES: Record<CategoryKey, Category> = {
   links: { label: 'Suspicious Links/Domains', icon: Link, color: 'text-blue-400' },
   urgency: { label: 'Urgency Tactics', icon: Zap, color: 'text-yellow-400' },
   phone: { label: 'Suspicious Phone Numbers', icon: Phone, color: 'text-purple-400' },
+  community: { label: 'Community Reports', icon: Users, color: 'text-rose-400' },
   other: { label: 'Other Indicators', icon: FileWarning, color: 'text-slate-400' },
 };
 
@@ -28,6 +29,7 @@ function categorizeReason(reason: string): CategoryKey {
   if (lower.includes('domain') || lower.includes('shortener') || lower.includes('link')) return 'links';
   if (lower.includes('urgent') || lower.includes('panic')) return 'urgency';
   if (lower.includes('number') || lower.includes('phone') || lower.includes('international')) return 'phone';
+  if (lower.includes('community') || lower.includes('reported')) return 'community';
   return 'other';
 }
 
