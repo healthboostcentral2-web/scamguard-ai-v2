@@ -1,0 +1,5 @@
+{
+  "name": "ScamGuard AI",
+  "description": "A progressive web app to detect potential scams in messages, links, and phone numbers using local heuristics.",
+  "requestFramePermissions": []
+}
