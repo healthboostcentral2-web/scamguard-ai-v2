@@ -1,16 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScanResult } from '../types';
 import { ShieldCheck, ShieldAlert, AlertTriangle, CheckCircle } from 'lucide-react';
 import RiskMeter from './RiskMeter';
 import RiskExplanation from './RiskExplanation';
 import WhyThisResult from './WhyThisResult';
 import ActionButtons from './ActionButtons';
+import CommunityWarningPanel from './CommunityWarningPanel';
+import { getReportCount } from '../services/scamReportsService';
 
 interface ResultCardProps {
   result: ScanResult;
 }
 
 const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
+  const [communityReportCount, setCommunityReportCount] = useState(0);
+
+  useEffect(() => {
+    const report = getReportCount(result.input);
+    if (report) {
+      setCommunityReportCount(report.reportCount);
+    } else {
+      setCommunityReportCount(0);
+    }
+  }, [result]);
+
+  const handleReport = (newCount: number) => {
+    setCommunityReportCount(newCount);
+  };
+
   const getTheme = () => {
     switch (result.riskLevel) {
       case 'SAFE':
@@ -98,7 +115,10 @@ const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
           )}
 
           {/* Action Buttons */}
-          <ActionButtons result={result} />
+          <ActionButtons result={result} onReport={handleReport} />
+
+          {/* Community Warning Panel */}
+          <CommunityWarningPanel reportCount={communityReportCount} />
         </div>
       </div>
     </div>

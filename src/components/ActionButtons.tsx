@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Copy, Share2, Ban, Flag, Check } from 'lucide-react';
 import { ScanResult } from '../types';
+import { reportScam } from '../services/scamReportsService';
 
 interface ActionButtonsProps {
   result: ScanResult;
+  onReport?: (reportCount: number) => void;
 }
 
 function generateWarningText(result: ScanResult): string {
@@ -47,10 +49,11 @@ function generateReportText(result: ScanResult): string {
   return lines.join('\n');
 }
 
-const ActionButtons: React.FC<ActionButtonsProps> = ({ result }) => {
+const ActionButtons: React.FC<ActionButtonsProps> = ({ result, onReport }) => {
   const [copiedWarning, setCopiedWarning] = useState(false);
   const [copiedReport, setCopiedReport] = useState(false);
   const [blocked, setBlocked] = useState(false);
+  const [reported, setReported] = useState(false);
 
   const handleCopyWarning = async () => {
     const text = generateWarningText(result);
@@ -91,6 +94,13 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ result }) => {
   };
 
   const handleReport = async () => {
+    // Save to community reports database
+    const report = reportScam(result.input);
+    setReported(true);
+    if (onReport) {
+      onReport(report.reportCount);
+    }
+
     const text = generateReportText(result);
     try {
       await navigator.clipboard.writeText(text);
@@ -151,13 +161,13 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ result }) => {
         <button
           onClick={handleReport}
           className={`${btnBase} ${
-            copiedReport
+            copiedReport || reported
               ? 'bg-green-500/20 border-green-500/50 text-green-400'
               : 'bg-slate-800/70 border-slate-700 text-slate-300 hover:bg-orange-500/20 hover:border-orange-500/50 hover:text-orange-400'
           }`}
         >
-          {copiedReport ? <Check className="w-4 h-4" /> : <Flag className="w-4 h-4" />}
-          {copiedReport ? 'Report Copied!' : 'Report Scam'}
+          {copiedReport || reported ? <Check className="w-4 h-4" /> : <Flag className="w-4 h-4" />}
+          {copiedReport ? 'Report Copied!' : reported ? 'Reported!' : 'Report Scam'}
         </button>
       </div>
     </div>

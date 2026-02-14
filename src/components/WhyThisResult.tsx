@@ -1,6 +1,6 @@
 import React from 'react';
 import { RuleMatch, RiskLevel } from '../types';
-import { HelpCircle, Tag, Link, Phone, Zap } from 'lucide-react';
+import { HelpCircle, Tag, Link, Phone, Zap, Users } from 'lucide-react';
 
 interface WhyThisResultProps {
   ruleMatches: RuleMatch[];
@@ -12,6 +12,7 @@ const CATEGORY_ICONS: Record<RuleMatch['category'], React.FC<{ className?: strin
   domain: Link,
   phone: Phone,
   urgency: Zap,
+  community: Users,
 };
 
 const CATEGORY_COLORS: Record<RuleMatch['category'], string> = {
@@ -19,6 +20,7 @@ const CATEGORY_COLORS: Record<RuleMatch['category'], string> = {
   domain: 'text-blue-400',
   phone: 'text-purple-400',
   urgency: 'text-yellow-400',
+  community: 'text-rose-400',
 };
 
 const WhyThisResult: React.FC<WhyThisResultProps> = ({ ruleMatches, riskLevel }) => {

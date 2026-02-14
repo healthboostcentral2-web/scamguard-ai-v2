@@ -1,4 +1,5 @@
 import { ScanResult, RiskLevel, RuleMatch } from '../types';
+import { getCommunityRiskBoost } from './scamReportsService';
 
 const SCAM_KEYWORDS = [
   'otp', 'verify now', 'urgent', 'lottery', 'prize', 'kyc update', 
@@ -64,6 +65,18 @@ export const detectScam = (input: string): ScanResult => {
     ruleMatches.push({ category: 'urgency', label: 'Urgent payment or action language detected' });
   }
 
+  // 5. Community Reports Analysis
+  const communityData = getCommunityRiskBoost(input);
+  let communityOverride = false;
+  if (communityData.boost > 0 && communityData.label) {
+    if (communityData.reportCount >= 20) {
+      communityOverride = true;
+    }
+    score += communityData.boost;
+    reasons.push(`${communityData.label} (${communityData.reportCount} reports)`);
+    ruleMatches.push({ category: 'community', label: `${communityData.label} (${communityData.reportCount} reports)` });
+  }
+
   // Normalize Score
   score = Math.min(score, 100);
 
@@ -71,7 +84,10 @@ export const detectScam = (input: string): ScanResult => {
   let riskLevel: RiskLevel = 'SAFE';
   let advice = 'No obvious threats detected. Always stay vigilant.';
 
-  if (score > 70) {
+  if (communityOverride) {
+    riskLevel = 'SCAM';
+    advice = 'CONFIRMED SCAM: This has been reported 20+ times by the community. Do not engage.';
+  } else if (score > 70) {
     riskLevel = 'SCAM';
     advice = 'Do not click links or reply. Block the sender immediately.';
   } else if (score > 30) {
