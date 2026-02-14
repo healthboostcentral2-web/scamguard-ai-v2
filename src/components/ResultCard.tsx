@@ -3,6 +3,7 @@ import { ScanResult } from '../types';
 import { ShieldCheck, ShieldAlert, AlertTriangle, CheckCircle } from 'lucide-react';
 import RiskMeter from './RiskMeter';
 import RiskExplanation from './RiskExplanation';
+import WhyThisResult from './WhyThisResult';
 import ActionButtons from './ActionButtons';
 
 interface ResultCardProps {
@@ -71,6 +72,9 @@ const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
              <h3 className="text-sm font-semibold text-slate-300 mb-2">Recommendation</h3>
              <p className="text-slate-200">{result.advice}</p>
           </div>
+
+          {/* Why this result? */}
+          <WhyThisResult ruleMatches={result.ruleMatches} riskLevel={result.riskLevel} />
 
           {/* Risk Meter */}
           <RiskMeter percentage={result.confidence} />

@@ -1,4 +1,4 @@
-import { ScanResult, RiskLevel } from '../types';
+import { ScanResult, RiskLevel, RuleMatch } from '../types';
 
 const SCAM_KEYWORDS = [
   'otp', 'verify now', 'urgent', 'lottery', 'prize', 'kyc update', 
@@ -15,6 +15,7 @@ export const detectScam = (input: string): ScanResult => {
   const lowerInput = input.toLowerCase();
   let score = 0;
   const reasons: string[] = [];
+  const ruleMatches: RuleMatch[] = [];
 
   // 1. Keyword Analysis
   let keywordMatches = 0;
@@ -25,6 +26,7 @@ export const detectScam = (input: string): ScanResult => {
       if (keywordMatches <= 3) {
          reasons.push(`Contains high-risk keyword: "${keyword}"`);
       }
+      ruleMatches.push({ category: 'keyword', label: `Contains "${keyword}" keyword` });
     }
   });
 
@@ -33,6 +35,7 @@ export const detectScam = (input: string): ScanResult => {
     if (lowerInput.includes(domain)) {
       score += 30;
       reasons.push(`Uses suspicious domain extension or shortener: "${domain}"`);
+      ruleMatches.push({ category: 'domain', label: `Suspicious link domain: "${domain}"` });
     }
   });
 
@@ -40,15 +43,16 @@ export const detectScam = (input: string): ScanResult => {
   // Regex for international or suspicious lengths
   const phoneRegex = /(\+|00)[1-9][0-9 \-\(\)\.]{7,32}/;
   const indianMobileRegex = /^[6-9]\d{9}$/;
-  
+
   // Extract potential numbers (simple heuristic)
   const numbers = input.match(/\d{10,}/g);
-  
+
   if (numbers) {
     numbers.forEach(num => {
       if (!indianMobileRegex.test(num) && num.length > 10) {
         score += 15;
         reasons.push('Contains unusually long or international number format');
+        ruleMatches.push({ category: 'phone', label: 'Unknown or international number pattern' });
       }
     });
   }
@@ -57,6 +61,7 @@ export const detectScam = (input: string): ScanResult => {
   if (lowerInput.includes('immediately') || lowerInput.includes('24 hours') || input.includes('!!!')) {
     score += 10;
     reasons.push('Uses urgent language to create panic');
+    ruleMatches.push({ category: 'urgency', label: 'Urgent payment or action language detected' });
   }
 
   // Normalize Score
@@ -78,6 +83,7 @@ export const detectScam = (input: string): ScanResult => {
     riskLevel = 'SAFE';
     score = 0;
     reasons.length = 0;
+    ruleMatches.length = 0;
     reasons.push('Input too short to analyze');
     advice = 'Please provide more context.';
   }
@@ -88,6 +94,7 @@ export const detectScam = (input: string): ScanResult => {
     riskLevel,
     confidence: score,
     reasons,
+    ruleMatches,
     advice,
     timestamp: Date.now()
   };
